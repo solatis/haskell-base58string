@@ -71,25 +71,25 @@ toBytes (Base58String bs) = fromMaybe (error "not a valid base58 input") $ b58De
 toText :: Base58String -> T.Text
 toText (Base58String bs) = TE.decodeUtf8 bs
 
--- | Our mapping table from binary to base58
-b58Table :: BS.ByteString
-b58Table = BS.pack
-           $  [49..57]
-           ++ [65..72]
-           ++ [74..78]
-           ++ [80..90]
-           ++ [97..107]
-           ++ [109..122]
+-- | Our mapping table from binary to base58, based on Bitcoin's table
+bitcoinTable :: BS.ByteString
+bitcoinTable = BS.pack
+               $  [49..57]
+               ++ [65..72]
+               ++ [74..78]
+               ++ [80..90]
+               ++ [97..107]
+               ++ [109..122]
 
 isValidBase58 :: Word8 -> Bool
 isValidBase58 c =
-  BS.elem c b58Table
+  BS.elem c bitcoinTable
 
 b58 :: Word8 -> Word8
-b58 i = BS.index b58Table (fromIntegral i)
+b58 i = BS.index bitcoinTable (fromIntegral i)
 
 b58' :: Word8 -> Maybe Word8
-b58' w = fromIntegral <$> BS.elemIndex w b58Table
+b58' w = fromIntegral <$> BS.elemIndex w bitcoinTable
 
 b58EncodeInt :: Integer -> BS.ByteString
 b58EncodeInt i =
