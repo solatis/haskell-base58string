@@ -7,6 +7,7 @@ module Data.Base58String ( Base58String
                          , toText ) where
 
 import           Control.Applicative    ((<$>), pure)
+import Control.Monad (liftM)
 
 import Data.Char (ord, chr)
 import Data.Bits ((.|.), shiftL, shiftR)
@@ -115,18 +116,18 @@ b58Encode input = BS.append l r
       | otherwise = b58EncodeInt $ bsToInteger b
 
 b58Decode :: BS.ByteString -> Maybe BS.ByteString
-b58Decode input = r >>= return . (BS.append prefix)
+b58Decode input = liftM (BS.append prefix) r
   where
-    (z,b)  = BS.span (== (b58 0)) input
+    (z,b)  = BS.span (== b58 0) input
     prefix = BS.map (fromJust . b58') z -- preserve leading 1's
     r | BS.null b = Just BS.empty
       | otherwise = integerToBS <$> b58DecodeInt b
 
 -- | Decode a big endian Integer from a bytestring
 bsToInteger :: BS.ByteString -> Integer
-bsToInteger = (foldr f 0) . reverse . BS.unpack
+bsToInteger = foldr f 0 . reverse . BS.unpack
   where
-    f w n = (toInteger w) .|. shiftL n 8
+    f w n = toInteger w .|. shiftL n 8
 
 -- | Encode an Integer to a bytestring as big endian
 integerToBS :: Integer -> BS.ByteString
@@ -136,4 +137,4 @@ integerToBS i
     | otherwise = error "integerToBS not defined for negative values"
   where
     f 0 = Nothing
-    f x = Just $ (fromInteger x :: Word8, x `shiftR` 8)
+    f x = Just (fromInteger x :: Word8, x `shiftR` 8)
