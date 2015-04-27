@@ -4,7 +4,8 @@ module Data.Base58String ( Base58String
                          , toBinary
                          , fromBytes
                          , toBytes
-                         , toText ) where
+                         , toText
+                         , fromText ) where
 
 import           Control.Applicative    ((<$>), pure)
 import Control.Monad (liftM)
@@ -70,6 +71,10 @@ toBytes (Base58String bs) = fromMaybe (error "not a valid base58 input") $ b58De
 -- | Access to a 'T.Text' representation of the 'Base58String'
 toText :: Base58String -> T.Text
 toText (Base58String bs) = TE.decodeUtf8 bs
+
+-- | Converts a 'T.Text' representation to a 'Base58String'
+fromText :: T.Text -> Base58String
+fromText = b58String . TE.encodeUtf8
 
 -- | Our mapping table from binary to base58, based on Bitcoin's table
 bitcoinTable :: BS.ByteString
