@@ -51,7 +51,7 @@ fromBinary :: B.Binary a
            => BS.ByteString -- ^ Our Base58 mapping table
            -> a             -- ^ Input object that is convertable to binary
            -> Base58String  -- ^ Base58 representation of binary data
-fromBinary table = (b58String table) . (b58Encode table) . BSL.toStrict . B.encode
+fromBinary table = b58String table . b58Encode table . BSL.toStrict . B.encode
 
 -- | Converts a 'Base58String' to a 'B.Binary' value
 toBinary :: B.Binary a
@@ -66,7 +66,7 @@ toBinary table (Base58String bs) = B.decode . BSL.fromStrict . fromMaybe (error 
 fromBytes :: BS.ByteString -- ^ Our Base58 mapping table
           -> BS.ByteString -- ^ Raw binary bytes
           -> Base58String  -- ^ Base58 representation of raw binary bytes
-fromBytes table = (b58String table) . (b58Encode table)
+fromBytes table = b58String table . b58Encode table
 
 -- | Access to the raw bytes in a 'BS.ByteString' format.
 toBytes :: BS.ByteString -- ^ Base58 mapping table
@@ -82,7 +82,7 @@ toText (Base58String bs) = TE.decodeUtf8 bs
 fromText :: BS.ByteString -- ^ Base58 mapping table
          -> T.Text        -- ^ Text representation
          -> Base58String  -- ^ Base58 classified representation
-fromText table = (b58String table) . TE.encodeUtf8
+fromText table = b58String table . TE.encodeUtf8
 
 isValidBase58 :: BS.ByteString -> Word8 -> Bool
 isValidBase58 table c =
@@ -100,7 +100,7 @@ b58EncodeInt :: BS.ByteString -- ^ Base58 mapping table
 b58EncodeInt table i =
     fromString $ showIntAtBase (58 :: Integer) f (fromIntegral i) ""
   where
-    f = chr . fromIntegral . (b58 table) . fromIntegral
+    f = chr . fromIntegral . b58 table . fromIntegral
 
 b58DecodeInt :: BS.ByteString -- ^ Base58 mapping table
              -> BS.ByteString
@@ -109,7 +109,7 @@ b58DecodeInt table s = case go of
     Just (r,[]) -> Just r
     _           -> Nothing
   where
-    c = (b58' table) . fromIntegral . ord
+    c = b58' table . fromIntegral . ord
     p = isJust . c
     f = fromIntegral . fromJust . c
     go = listToMaybe $ readInt 58 p f (BS8.unpack s)
@@ -129,10 +129,10 @@ b58Decode :: BS.ByteString -- ^ Base58 mapping table
           -> Maybe BS.ByteString
 b58Decode table input = liftM (BS.append prefix) r
   where
-    (z,b)  = BS.span (== (b58 table) 0) input
-    prefix = BS.map (fromJust . (b58' table)) z -- preserve leading 1's
+    (z,b)  = BS.span (== b58 table 0) input
+    prefix = BS.map (fromJust . b58' table) z -- preserve leading 1's
     r | BS.null b = Just BS.empty
-      | otherwise = integerToBS <$> (b58DecodeInt table) b
+      | otherwise = integerToBS <$> b58DecodeInt table b
 
 -- | Decode a big endian Integer from a bytestring
 bsToInteger :: BS.ByteString -> Integer
