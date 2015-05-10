@@ -25,6 +25,7 @@ library
   default-language:    Haskell2010
 
   exposed-modules:     Data.Base58String
+                       Data.Base58String.Bitcoin
   
   build-depends:       base                     >= 4.3          && < 5
                      , binary 

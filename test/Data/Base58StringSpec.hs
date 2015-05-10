@@ -1,8 +1,8 @@
 module Data.Base58StringSpec where
 
-import           Data.Base58String ( b58String
-                                   , fromBytes
-                                   , toBytes )
+import           Data.Base58String.Bitcoin ( b58String
+                                           , fromBytes
+                                           , toBytes )
 
 import qualified Data.ByteString.Char8 as BS8
 
